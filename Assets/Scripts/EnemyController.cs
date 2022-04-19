@@ -3,129 +3,77 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-
 public class EnemyController : MonoBehaviour
 {
+    // Start is called before the first frame update
+    NavMeshAgent agent;
     Animator animator;
-    NavMeshAgent agent;
     public GameObject target;
-    public float walkingSpeed;
-    public float runningSpeed;
-
-    enum STATE { IDLE, WALK, RUN, ATTACK, DIE };
-    STATE state = STATE.IDLE;
-    // Start is called before the first frame update
+    public float stoppingDistance;
+    public enum STATE { IDLE, CHASE, ATTACK, DEATH }
+    public STATE state = STATE.IDLE;
     void Start()
     {
         animator = GetComponent<Animator>();
         agent = GetComponent<NavMeshAgent>();
     }
 
-    // Update is called once per frame
-    void Update()
+    // Update is called once per frame
+    void Update()
     {
-        if (target == null && GameStart.isGameOver == false)
-        {
-            target = GameObject.FindGameObjectWithTag("Player");
-            return;
-        }
         switch (state)
         {
             case STATE.IDLE:
-                if (SeeTheplayer())
+                TurnOffAllAnim();
+                if (NearPlayer())
                 {
-                    state = STATE.RUN;
-                }
-                else if (Random.Range(0, 1000) < 5)
-                {
-                    state = STATE.WALK;
+                    state = STATE.CHASE;
                 }
                 break;
-            case STATE.WALK:
-                if (!agent.hasPath)
-                {
-                    float randValueX = transform.position.x + Random.Range(-5f, 5f);
-                    float randValueZ = transform.position.z + Random.Range(-5f, 5f);
-                    float ValueY = Terrain.activeTerrain.SampleHeight(new Vector3(randValueX, 0f, randValueZ));
-                    Vector3 destination = new Vector3(randValueX, ValueY, randValueZ);
-                    agent.SetDestination(destination);
-                    agent.stoppingDistance = 0f;
-                    agent.speed = walkingSpeed;
-                    TurnOffAllTriggerAnim();
-                    animator.SetBool("isWalking", true);
-                }
-                if (SeeTheplayer())
-                {
-                    state = STATE.RUN;
-                }
-                else if (Random.Range(0, 1000) < 7)
-                {
-                    state = STATE.IDLE;
-                    TurnOffAllTriggerAnim();
-                    agent.ResetPath();
-                }
-
-                break;
-
-            case STATE.RUN:
-                if (GameStart.isGameOver)
-                {
-                    TurnOffAllTriggerAnim();
-                    state = STATE.WALK;
-                    return;
-                }
-                agent.SetDestination(target.transform.position);
-                agent.stoppingDistance = 2f;
-                TurnOffAllTriggerAnim();
+            case STATE.CHASE:
+                TurnOffAllAnim();
                 animator.SetBool("isRunning", true);
-                agent.speed = runningSpeed;
-                if (agent.remainingDistance <= agent.stoppingDistance && !agent.pathPending)
+                agent.SetDestination(target.transform.position);
+                agent.stoppingDistance = 3f;
+                print("running");
+                if (DistanceToPlayer() <= 4f)
                 {
                     state = STATE.ATTACK;
                 }
-                if (SeeTheplayer())
+
+
+                if (DistanceToPlayer() > 20f)
                 {
-                    state = STATE.WALK;
-                    agent.ResetPath();
+                    state = STATE.IDLE;
                 }
-
-
                 break;
-
             case STATE.ATTACK:
-                if (GameStart.isGameOver)
-                {
-                    TurnOffAllTriggerAnim();
-                    state = STATE.WALK;
-                    return;
-                }
-                TurnOffAllTriggerAnim();
+                TurnOffAllAnim();
                 animator.SetBool("isAttacking", true);
-                transform.LookAt(target.transform.position);//Zombies should look at Player
-                if (DistanceBetweenPlayer() > agent.stoppingDistance + 2)
+                if (DistanceToPlayer() > 4f)
                 {
-                    state = STATE.RUN;
+                    state = STATE.IDLE;
+
                 }
-                print("Attacking State");
                 break;
-            case STATE.DIE:
+            case STATE.DEATH:
+                TurnOffAllAnim();
+                animator.SetBool("isDead", true);
                 break;
             default:
                 break;
         }
-    }
-    public void TurnOffAllTriggerAnim()//All animation are off
-    {
-        animator.SetBool("isWalking", false);
-        animator.SetBool("isRunning", false);
-        animator.SetBool("isAttacking", false);
-        //animator.SetBool("isReload", false);
-        animator.SetBool("isDead", false);
+
     }
 
-    private bool SeeTheplayer()
+    private float DistanceToPlayer()
     {
-        if (DistanceBetweenPlayer() < 5)
+        return Vector3.Distance(target.transform.position, agent.transform.position);
+    }
+
+    public bool NearPlayer()
+    {
+        if (DistanceToPlayer() < 20f)
         {
             return true;
         }
@@ -134,21 +82,16 @@ public class EnemyController : MonoBehaviour
             return false;
         }
     }
-    private float DistanceBetweenPlayer()
+    public void EnemyDead()
     {
-        if (GameStart.isGameOver)
-        {
-            return Mathf.Infinity;
-        }
-        return Vector3.Distance(target.transform.position, this.transform.position);
+
+        state = STATE.DEATH;
     }
-
-
-}
-//Checking for Game Over or not.
-public class GameStart
-{
-    public static bool isGameOver = false;
-
+    public void TurnOffAllAnim()
+    {
+        animator.SetBool("isDead", false);
+        animator.SetBool("isRunning", false);
+        animator.SetBool("isAttacking", false);
+    }
 }
 
