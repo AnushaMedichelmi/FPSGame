@@ -17,9 +17,10 @@ public class PlayerController : MonoBehaviour
     public Camera cam;              //Declaring camera
     Quaternion playerRotation;
 
-    //public Animator animator;
+    
     float inputX;
     float inputz;
+    public Animator animator;
 
 
 
@@ -31,8 +32,17 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
    void Update()
     {
-       
+       if(Input.GetKeyDown(KeyCode.R))
+        {
+            animator.SetBool("isReload", !animator.GetBool("isReload"));
         }
+
+       if(Input.GetKeyDown(KeyCode.Q))
+        {
+            animator.SetBool("isShoot", !animator.GetBool("isShoot"));
+        }
+        
+    }
 
         void FixedUpdate()
         {
