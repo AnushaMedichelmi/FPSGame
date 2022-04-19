@@ -21,6 +21,7 @@ public class PlayerController : MonoBehaviour
     float inputX;
     float inputz;
     public Animator animator;
+    SpawnManager spawnManager;
 
 
 
@@ -28,6 +29,7 @@ public class PlayerController : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         colliders = GetComponent<CapsuleCollider>();
+        spawnManager = GameObject.Find("SpawnPosition").GetComponent<SpawnManager>();
     }
     // Update is called once per frame
    void Update()
