@@ -77,7 +77,7 @@ public class PlayerController : MonoBehaviour
             GameObject hitEnemy = hit.collider.gameObject;
             if (hitEnemy.gameObject.tag == "Enemy")
             {
-                //Destroy(hitEnemy);
+                Destroy(hitEnemy);
                 print("Enemy hit");
                 hitEnemy.GetComponent<EnemyController>().EnemyDead();
             }
