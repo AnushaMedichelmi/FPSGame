@@ -12,10 +12,20 @@ public class EnemyController : MonoBehaviour
     public float stoppingDistance;
     public enum STATE { IDLE, CHASE, ATTACK, DEATH }
     public STATE state = STATE.IDLE;
+
+    public float currentTime;
+    public float attackTime;
+    bool isGameOver=false;
+      PlayerController playerController;
+    public AudioSource audioSources;
+    AudioClip audioClip;
     void Start()
     {
         animator = GetComponent<Animator>();
         agent = GetComponent<NavMeshAgent>();
+        playerController = GameObject.Find("Player").GetComponent<PlayerController>();
+        audioSources = GetComponent<AudioSource>();
+        audioClip = GetComponent<AudioClip>();  
     }
 
     // Update is called once per frame
@@ -33,6 +43,7 @@ public class EnemyController : MonoBehaviour
             case STATE.CHASE:
                 TurnOffAllAnim();
                 animator.SetBool("isRunning", true);
+                audioSources.Play();
                 agent.SetDestination(target.transform.position);
                 agent.stoppingDistance = 3f;
                 print("running");
@@ -55,7 +66,9 @@ public class EnemyController : MonoBehaviour
                     state = STATE.IDLE;
 
                 }
+                Attack();
                 break;
+
             case STATE.DEATH:
                 TurnOffAllAnim();
                 animator.SetBool("isDead", true);
@@ -92,6 +105,27 @@ public class EnemyController : MonoBehaviour
         animator.SetBool("isDead", false);
         animator.SetBool("isRunning", false);
         animator.SetBool("isAttacking", false);
+    }
+
+    public void Attack()
+    {
+        currentTime = currentTime - Time.deltaTime;
+        if(currentTime <=0f)
+        {
+            playerController.health--;
+           //GetComponent<PlayerController>().health--;
+            Debug.Log(playerController.health);
+            currentTime = attackTime; 
+
+        }
+
+        if(playerController.health==0)
+        {
+            isGameOver = true;
+            TurnOffAllAnim();
+           // PlayerController.GameOver();
+        }
+
     }
 }
 
