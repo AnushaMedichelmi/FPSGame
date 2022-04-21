@@ -18,14 +18,17 @@ public class EnemyController : MonoBehaviour
     bool isGameOver=false;
       PlayerController playerController;
     public AudioSource audioSources;
-    AudioClip audioClip;
+   AudioClip audioClip;
     void Start()
     {
         animator = GetComponent<Animator>();
         agent = GetComponent<NavMeshAgent>();
         playerController = GameObject.Find("Player").GetComponent<PlayerController>();
         audioSources = GetComponent<AudioSource>();
-        audioClip = GetComponent<AudioClip>();  
+      
+        
+        audioClip = GetComponent<AudioClip>();
+       
     }
 
     // Update is called once per frame
