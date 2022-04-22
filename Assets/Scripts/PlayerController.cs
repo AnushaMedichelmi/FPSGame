@@ -31,6 +31,7 @@ public class PlayerController : MonoBehaviour
     int maxMedical = 100;
 
     public GameObject[] weapons;
+    AudioSource audioSource;
    
   
 
@@ -41,7 +42,7 @@ public class PlayerController : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         colliders = GetComponent<CapsuleCollider>();
         //spawnManager = GameObject.Find("SpawnPosition").GetComponent<SpawnManager>();
-       
+       audioSource= GetComponent<AudioSource>();
         weapons = GetComponent<GameObject[]>();
         weapons[0].SetActive(false);
         weapons[0].SetActive(false);
@@ -60,6 +61,8 @@ public class PlayerController : MonoBehaviour
             if (ammo > 0)
             {
                 animator.SetBool("isShoot", !animator.GetBool("isShoot"));
+                audioSource.Play();
+
                 HitEnemy();
               
             }
